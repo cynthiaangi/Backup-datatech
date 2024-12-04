@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calculadora de Investimento</title>
+    <link rel="stylesheet" href="./css/style-calc.css" />
+    <script data-jsd-embedded data-key="58caf5ec-06eb-4795-b41f-4f28b9a17f44"
+    data-base-url="https://jsd-widget.atlassian.com"
+    src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
+  </head>
+
+  <body>
+    <header class="cabecalho">
+      <img class="logo" src="./img/logo-png.png" alt="Logo DataTech" />
+    </header>
+    <div class="container">
+      <div class="fundo">
+        <div class="divisao">
+          <div class="medidas">
+            <div class="painel">
+              <h1>Calculadora de Investimento</h1>
+              <div class="valores">
+                <p>Orçamento inicial (Investimento no projeto em R$)</p>
+                <input id="input_orcamentoInicial" type="text" />
+                <p>Receita Anual da Empresa prevista (R$)</p>
+                <input id="input_ReceitaAnual" type="text" />
+                <p>Quantidade de Manutenções Preventivas e Corretivas (mês)</p>
+                <input id="input_qtdprevcorre" type="text" />
+                <p>Quantidade de Upgrades de Peças (mês)</p>
+                <input id="input_qtdpecas" type="text" />
+                <p>Quantidade de Suportes Técnicos de Emergência (mês)</p>
+                <input id="input_qtdsuptec" type="text" />
+              </div>
+
+              <button class="botao" onclick="calcular()">
+                Calcular Gastos
+              </button>
+              <a class="botao voltar" href="./index.html">Voltar</a>
+            </div>
+          </div>
+
+          <div id="resultados"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+<script>
+  function calcular() {
+    // adicionando as input como variáveis
+    var orcamentoInicial = Number(input_orcamentoInicial.value);
+    var receitaAnual = Number(input_ReceitaAnual.value);
+    var manu_prev = Number(input_qtdprevcorre.value);
+    var manu_pecas = Number(input_qtdpecas.value);
+    var sup_tec = Number(input_qtdsuptec.value);
+    // dando valor as variéveis
+    var valor_prev = manu_prev * 465;
+    var valor_pecas = manu_pecas * 310;
+    var valor_suptec = sup_tec * 155;
+    //conta necessária das variáveis
+    var totalGastosMensais = valor_prev + valor_pecas + valor_suptec;
+    var gastoAnual = totalGastosMensais * 12;
+    var gastoStud = gastoAnual * 0.75;
+    var custoTotal = orcamentoInicial + gastoStud;
+    var lucroBruto = receitaAnual - custoTotal;
+    var mensagem = "";
+    //parte do financeiro com porcentagens
+    var Margem_de_lucro = (lucroBruto / receitaAnual) * 100;
+
+    document.getElementById("resultados").style.display = "block";
+
+    if (custoTotal > receitaAnual) {
+      mensagem = `O custo total anual de R$ ${custoTotal.toFixed(2)} 
+            é maior do que a receita anual de R$ ${receitaAnual.toFixed(
+              2
+            )}. Isso significa que há um prejuízo.`;
+    }
+
+    mensagem += `
+            <h3 class="gastos"> Sua empresa tem os seguintes gastos mensais em média: </h3>
+            
+            <p class= "result_text">Manutenções Preventivas e Corretivas: <span class= "negativo"> ${manu_prev}</span> X 465.00 = <span class= "negativo"> R$ ${valor_prev.toFixed(
+      2
+    )}</span></p><br>
+            <p class= "result_text">Upgrades de Peças:<span class= "negativo"> ${manu_pecas}</span> X 310.00 = <span class= "negativo"> R$ ${valor_pecas.toFixed(
+      2
+    )}</span></p><br>
+            <p class= "result_text">Suportes Técnicos de Emergência:<span class= "negativo"> ${sup_tec}</span> X 155.00 = <span class= "negativo"> R$ ${valor_suptec.toFixed(
+      2
+    )}</span></p><br>
+            <p class= "result_text">Total de gastos mensais: <span class= "negativo"> R$ ${totalGastosMensais.toFixed(
+              2
+            )}</span></p><br>            
+            
+            <h3 class = "beneficio">Seu investimento no projeto oferece os seguintes benefícios:</h3>
+            
+            <p class= "result_text">Custo Total sem implementar o projeto: <span class= "negativo"> R$ ${gastoAnual.toFixed(
+              2
+            )}</span></p><br>
+            <p class= "result_text">Custo Total implementando o projeto: <span class= "beneficio"> R$ ${custoTotal.toFixed(
+              2
+            )}</span></p><br>
+            <p class= "result_text">Lucro com o projeto: <span class = "beneficio"> R$ ${lucroBruto.toFixed(
+              2
+            )}</span></p><br>
+            <p class= "result_text">Margem de Lucro: <span class = "beneficio"> ${Margem_de_lucro.toFixed(
+              2
+            )}%</span></p><br>`;
+
+    resultados.innerHTML = mensagem;
+  }
+</script>

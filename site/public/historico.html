@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard DataTech</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style-dash.css" />
+    <script data-jsd-embedded data-key="58caf5ec-06eb-4795-b41f-4f28b9a17f44"
+    data-base-url="https://jsd-widget.atlassian.com"
+    src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
+</head>
+
+<body>
+    <main class="dash">
+
+        <section class="conteudo-dash">
+            <nav class="lateral">
+                <img class="logo" src="./img/logo-png.png" alt="Logo DataTech" />
+                <div class="info-usuario">
+                    <img class="img-usuario" src="./img/user-icon-design-free-png.webp" alt="logo cliente">
+                    <p>Bem vindo, <span class="nome-usuario">Frizza!</span></p>
+                </div>
+                <a href="./dashboard.html">Dados em Tempo Real</a>
+                <a href="./historico.html">Histórico</a>
+                <a href="./login.html">Sair</a>
+            </nav>
+
+            <div class="dashboard-conteudo-historico">
+                <div class="chart">
+                    <div class="area-parametros-alerta">
+                        <div class="parametro-temp">
+                            <p class="titulo-legenda">
+                                Parâmetros para Alerta de Temperatura
+                            </p>
+                            <div class="parametros-alerta">
+                                <div class="item-regua ideal">
+                                    <p>Ideal</p>
+                                    <p>18°C - 20°C</p>
+                                </div>
+                                <div class="item-regua alerta-quente">
+                                    <p>Alerta</p>
+                                    <p>&lt;=27°C</p>
+                                </div>
+                                <div class="item-regua perigo-quente">
+                                    <p>Perigo</p>
+                                    <p>&gt;27°C</p>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="parametro-umid">
+                            <p class="titulo-legenda">
+                                Parâmetros para Alerta de Umidade
+                            </p>
+                            <div class="parametros-alerta">
+                                <div class="item-regua ideal">
+                                    <p>Ideal</p>
+                                    <p>40% - 50%</p>
+                                </div>
+                                <div class="item-regua alerta-quente">
+                                    <p>Alerta</p>
+                                    <p>&lt;= 60%</p>
+                                </div>
+                                <div class="item-regua perigo-quente">
+                                    <p>Perigo</p>
+                                    <p>&gt; 60%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="kpi">
+                        <h4>Máxima:</h4>
+                        <div class="quadradinho" id="max_temp"></div>
+                        <h4>Máxima:</h4>
+                        <div class="quadradinho" id="max_umid"></div>
+                    </div>
+                    <div class="kpi">
+                        <h4>Média:</h4>
+                        <div class="quadradinho" id="media_temp"></div>
+                        <h4>Média:</h4>
+                        <div class="quadradinho" id="media_umid"></div>
+                    </div>
+
+
+                </div>
+            </div>
+            </div>
+        </section>
+    </main>
+
+</body>
+
+</html>
+
+<script>
+
+    window.onload = exibirAquariosDoUsuario()
+
+    function exibirAquariosDoUsuario() {
+
+        var idEmpresa = sessionStorage.ID_USUARIO;
+        console.log(idEmpresa);
+
+        obterDadosGrafico(idEmpresa);
+    }
+
+    function plotarGrafico(resposta, idEmpresa) {
+
+        console.log('iniciando plotagem do gráfico...');
+
+        // Criando estrutura para plotar gráfico - labels
+        let eixox = [];
+
+        // Criando estrutura para plotar gráfico - dados
+        let dados = {
+            labels: [1, 2, 3],
+            datasets: [{
+                label: 'Umidade',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            },
+            {
+                label: 'Temperatura',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(199, 52, 52)',
+                tension: 0.1
+            }]
+        };
+
+        console.log('----------------------------------------------')
+        console.log('Estes dados foram recebidos pela funcao "obterDadosGrafico" e passados para "plotarGrafico":')
+        console.log(resposta)
+
+        // Inserindo valores recebidos em estrutura para plotar o gráfico
+        for (i = 0; i < resposta.length; i++) {
+            var registro = resposta[i];
+            console.log(registro.DataHora)
+            // eixox.push(registro.momento_grafico);
+            dados.datasets[1].data.push(registro.umidade);
+            dados.datasets[0].data.push(registro.temperatura);
+            eixox.push(registro.DataHora);
+        }
+
+        console.log('----------------------------------------------')
+        console.log('O gráfico será plotado com os respectivos valores:')
+        console.log('Labels:')
+        console.log(eixox)
+        console.log('Dados:')
+        console.log(dados.datasets)
+        console.log('----------------------------------------------')
+
+        // Criando estrutura para plotar gráfico - config
+        const config = {
+            type: 'line',
+            data: dados,
+        };
+
+        // Adicionando gráfico criado em div na tela
+        let myChart = new Chart(
+            document.getElementById(`myChart`),
+            config
+        );
+
+        setTimeout(() => atualizarGrafico(idEmpresa, dados, myChart), 2000);
+    }
+
+
+    function obterDadosGrafico(idEmpresa) {
+        console.log('Entrei na Obter')
+        fetch(`/medidas/ultimas/${idEmpresa}`, { method: 'GET' }, { cache: 'no-store' }).then(function (response) {
+            console.log(response);
+
+            if (response.ok) {
+
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+                    resposta.reverse();
+
+                    plotarGrafico(resposta, idEmpresa);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    var umidade_atual = '';
+    var temperatura_atual = '';
+
+    function atualizarGrafico(IdEmpresa, dados, myChart) {
+
+
+
+        fetch(`/medidas/medida-diaria/${IdEmpresa}`, { cache: 'no-store' }).then(function (response) {
+
+            if (response.ok) {
+                response.json().then(function (novoRegistro) {
+
+                    // obterDadosGrafico(IdEmpresa);
+                    // alertar(novoRegistro, IdEmpresa);
+                    console.log(`Dados recebidos: ${JSON.stringify(novoRegistro)}`);
+                    console.log(`Dados atuais do gráfico:`);
+                    console.log(dados);
+
+                        umidade_max = novoRegistro[0].maxUmid
+                        umidade_media = novoRegistro[0].mediaUmid
+                        temperatura_max = novoRegistro[0].maxTemp
+                        temperatura_media = novoRegistro[0].mediaTemp
+
+                        var kpi_maxTemp = document.getElementById('max_temp');
+                        var kpi_maxUmid = document.getElementById('max_umid');
+                        var kpi_mediaTemp = document.getElementById('media_temp');
+                        var kpi_mediaUmid = document.getElementById('media_umid');
+                        var kpi_alertaTemp = document.getElementById('alerta_temp');
+                        var kpi_alertaUmid = document.getElementById('alerta_umid');
+
+                        kpi_maxTemp.innerHTML = ''
+                        kpi_maxUmid.innerHTML = ''
+                        kpi_mediaTemp.innerHTML = ''
+                        kpi_mediaUmid.innerHTML = ''
+
+                        // criando e manipulando elementos do HTML via JavaScript
+                        var divPublicacao = document.createElement("div");
+                        var divPublicacao2 = document.createElement("div");
+                        var divPublicacao3 = document.createElement("div");
+                        var divPublicacao4 = document.createElement("div");
+                        var divPublicacao5 = document.createElement("div");
+                        var divPublicacao6 = document.createElement("div");
+                        var spankpi_maxTemp = document.createElement("span");
+                        var spankpi_maxUmid = document.createElement("span");
+                        var spankpi_mediaTemp = document.createElement("span");
+                        var spankpi_mediaUmid = document.createElement("span");
+                        var spankpi_alertaTemp = document.createElement("span");
+                        var spankpi_alertaUmid = document.createElement("span");
+
+                        spankpi_maxUmid.innerHTML = `${umidade_max}%`
+                        spankpi_maxTemp.innerHTML = `${temperatura_max}°C`
+                        spankpi_mediaTemp.innerHTML = `${temperatura_media}°C`
+                        spankpi_mediaUmid.innerHTML = `${umidade_media}%`
+
+
+                        divPublicacao.className = "publicacao";
+                        divPublicacao2.className = "publicacao";
+                        divPublicacao3.className = "publicacao";
+                        divPublicacao4.className = "publicacao";
+                        spankpi_maxUmid.className = "publicacao";
+                        spankpi_maxTemp.className = "publicacao";
+                        spankpi_mediaTemp.className = "publicacao";
+                        spankpi_mediaUmid.className = "publicacao";
+
+                        divPublicacao.appendChild(spankpi_maxTemp);
+                        divPublicacao2.appendChild(spankpi_maxUmid);
+                        divPublicacao3.appendChild(spankpi_mediaTemp);
+                        divPublicacao4.appendChild(spankpi_mediaUmid);
+
+                        kpi_maxTemp.appendChild(divPublicacao);
+                        kpi_maxUmid.appendChild(divPublicacao2);
+                        kpi_mediaTemp.appendChild(divPublicacao3);
+                        kpi_mediaUmid.appendChild(divPublicacao4);
+
+                        if (temperatura_max <= 20) {
+                            max_temp.style.backgroundColor = '#00ff00'
+                        } else if (temperatura_max <= 27) {
+                            max_temp.style.backgroundColor = '#ffff00'
+                        } else {
+                            max_temp.style.backgroundColor = '#ff0000'
+                        }
+
+                        if (umidade_max <= 50) {
+                            max_umid.style.backgroundColor = '#00ff00'
+                        } else if (umidade_max <= 60) {
+                            max_umid.style.backgroundColor = '#ffff00'
+                        } else {
+                            max_umid.style.backgroundColor = '#ff0000'
+                        }
+
+                        if (temperatura_media <= 20) {
+                            media_temp.style.backgroundColor = '#00ff00'
+                        } else if (temperatura_media <= 27) {
+                            media_temp.style.backgroundColor = '#ffff00'
+                        } else {
+                            media_temp.style.backgroundColor = '#ff0000'
+                        }
+
+                        if (umidade_media <= 50) {
+                            media_umid.style.backgroundColor = '#00ff00'
+                        } else if (umidade_media <= 60) {
+                            media_umid.style.backgroundColor = '#ffff00'
+                        } else {
+                            media_umid.style.backgroundColor = '#ff0000'
+                        }
+                        // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                        proximaAtualizacao = setTimeout(() => atualizarGrafico(IdEmpresa, dados, myChart), 2000);
+                    
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+                // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                proximaAtualizacao = setTimeout(() => atualizarGrafico(IdEmpresa, dados, myChart), 2000);
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+
+    }
+
+
+
+    // const ctx = document.getElementById('myChart');
+    // const cty = document.getElementById('myChart1');
+
+    // new Chart(ctx, {
+    //     type: 'line',
+    //     data: {
+    //         labels: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00'],
+    //         datasets: [{
+    //             label: 'Temperatura',
+    //             data: [18, 20, 21, 27, 25, 24, 28, 30, 29, 29, 27, 25, 24, 22, 20, 20, 19, 19, 18, 19, 20, 20, 21, 21],
+    //             borderWidth: 1,
+    //             borderColor: 'rgb(255, 25, 115)',
+    //             backgroundColor: 'rgb(255, 25, 115)'
+    //         },
+    //         {
+    //             label: 'Umidade',
+    //             data: [42, 45, 47, 51, 57, 60, 55, 54, 52, 51, 54, 59, 61, 65, 60, 57, 54, 52, 50, 47, 46, 44, 43, 44],
+    //             borderWidth: 1,
+    //             borderColor: 'rgb(95, 196, 171)',
+    //             backgroundColor: 'rgb(95, 196, 171)'
+    //         }]
+    //     },
+    //     options: {
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Variação de temperatura e umidade por dia',
+    //                 color: 'rgb(255, 255, 255)',
+    //                 font: {
+    //                     size: 24
+    //                 },
+    //                 padding: {
+    //                     bottom: 40
+    //                 }
+    //             },
+    //             legend: {
+    //                 labels: {
+    //                     color: 'rgb(255, 255, 255)',
+    //                     font: {
+    //                         size: 16
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         scales: {
+    //             x: {
+    //                 ticks: {
+    //                     color: 'rgb(255, 255, 255)',
+    //                 },
+    //                 title: {
+    //                     display: true,
+    //                     text: 'horas',
+    //                     color: 'rgb(255, 255, 255)',
+    //                     font: {
+    //                         size: 16
+    //                     }
+    //                 }
+    //             },
+    //             y: {
+    //                 beginAtZero: true,
+    //                 ticks: {
+    //                     color: 'rgb(255, 255, 255)',
+    //                 },
+    //                 title: {
+    //                     display: true,
+    //                     text: 'medida',
+    //                     color: 'rgb(255, 255, 255)',
+    //                     font: {
+    //                         size: 16
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // })
+
+    // new Chart(cty, {
+    //     type: 'bar',
+    //     data: {
+    //         labels: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+    //         datasets: [{
+    //             label: 'Temperatura média',
+    //             data: [22, 29, 21, 23, 25, 19, 18, 20, 21, 24, 26, 27],
+    //             borderWidth: 1,
+    //             borderColor: 'rgb(255, 25, 115)',
+    //             backgroundColor: 'rgb(255, 25, 115)'
+    //         },
+    //         {
+    //             label: 'Umidade média',
+    //             data: [52, 49, 50, 47, 56, 52, 51, 52, 48, 51, 57, 56],
+    //             borderWidth: 1,
+    //             borderColor: 'rgb(95, 196, 171)',
+    //             backgroundColor: 'rgb(95, 196, 171)'
+    //         }
+    //         ]
+    //     },
+    //     options: {
+    //         plugins: {
+    //             title: {
+    //                 display: true,
+    //                 text: 'Média de Umidade e de Temperatura mensal'
+    //             }
+    //         },
+    //         scales: {
+    //             y: {
+    //                 beginAtZero: true
+    //             }
+    //         }
+    //     }
+    // });
+
+
+</script>
+
+<!-- 
+window.onload = exibirAquariosDoUsuario();
+
+function exibirAquariosDoUsuario() {
+    var aquarios = JSON.parse(sessionStorage.AQUARIOS);
+    aquarios.forEach(item => {
+        document.getElementById("btnAquario").innerHTML += `
+        <button class="btn-chart" onclick="exibirAquario(${item.id})" id="btnAquario${item.id}">${item.descricao}</button>
+        `
+
+        document.getElementById("graficos").innerHTML += `
+            <div id="grafico${item.id}" class="display-none">
+                <h3 class="tituloGraficos">
+                    <span id="tituloAquario${item.id}">${item.descricao}</span>
+                </h3>
+                <div class="graph">
+                    <canvas id="myChart${item.id}"></canvas>
+                </div>
+                <div class="label-captura">
+                    <p id="avisoCaptura${item.id}" style="color: white"></p>
+                </div>
+            </div>
+        `
+
+        obterDadosGrafico(item.id)
+    });
+
+    if (aquarios.length > 0) {
+        exibirAquario(aquarios[0].id)
+    }
+}
+function alterarTitulo(idAquario) {
+        var tituloAquario = document.getElementById(`tituloAquario${idAquario}`)
+        var descricao = JSON.parse(sessionStorage.AQUARIOS).find(item => item.id == idAquario).descricao;
+        tituloAquario.innerHTML = "Últimas medidas de Temperatura e Umidade do <span style='color: #e6005a'>" + descricao + "</span>"
+    }
+
+    function exibirAquario(idAquario) {
+        let todosOsGraficos = JSON.parse(sessionStorage.AQUARIOS);
+
+        for (i = 0; i < todosOsGraficos.length; i++) {
+            // exibindo - ou não - o gráfico
+            if (todosOsGraficos[i].id != idAquario) {
+                let elementoAtual = document.getElementById(`grafico${todosOsGraficos[i].id}`)
+                if (elementoAtual.classList.contains("display-block")) {
+                    elementoAtual.classList.remove("display-block")
+                }
+                elementoAtual.classList.add("display-none")
+
+                // alterando estilo do botão
+                let btnAtual = document.getElementById(`btnAquario${todosOsGraficos[i].id}`)
+                if (btnAtual.classList.contains("btn-pink")) {
+                    btnAtual.classList.remove("btn-pink")
+                }
+                btnAtual.classList.add("btn-white")
+            }
+        }
+
+        // exibindo - ou não - o gráfico
+        let graficoExibir = document.getElementById(`grafico${idAquario}`)
+        graficoExibir.classList.remove("display-none")
+        graficoExibir.classList.add("display-block")
+
+        // alterando estilo do botão
+        let btnExibir = document.getElementById(`btnAquario${idAquario}`)
+        btnExibir.classList.remove("btn-white")
+        btnExibir.classList.add("btn-pink")
+    }
+
+    // O gráfico é construído com três funções:
+    // 1. obterDadosGrafico -> Traz dados do Banco de Dados para montar o gráfico da primeira vez
+    // 2. plotarGrafico -> Monta o gráfico com os dados trazidos e exibe em tela
+    // 3. atualizarGrafico -> Atualiza o gráfico, trazendo novamente dados do Banco
+
+    // Esta função *obterDadosGrafico* busca os últimos dados inseridos em tabela de medidas.
+    // para, quando carregar o gráfico da primeira vez, já trazer com vários dados.
+    // A função *obterDadosGrafico* também invoca a função *plotarGrafico*
+
+    //     Se quiser alterar a busca, ajuste as regras de negócio em src/controllers
+    //     Para ajustar o "select", ajuste o comando sql em src/models
+    function obterDadosGrafico(idAquario) {
+
+        alterarTitulo(idAquario)
+
+        if (proximaAtualizacao != undefined) {
+            clearTimeout(proximaAtualizacao);
+        }
+
+        fetch(`/medidas/ultimas/${idAquario}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+                    resposta.reverse();
+
+                    plotarGrafico(resposta, idAquario);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    // Esta função *plotarGrafico* usa os dados capturados na função anterior para criar o gráfico
+    // Configura o gráfico (cores, tipo, etc), materializa-o na página e, 
+    // A função *plotarGrafico* também invoca a função *atualizarGrafico*
+    function plotarGrafico(resposta, idAquario) {
+
+        console.log('iniciando plotagem do gráfico...');
+
+        // Criando estrutura para plotar gráfico - labels
+        let labels = [];
+
+        // Criando estrutura para plotar gráfico - dados
+        let dados = {
+            labels: labels,
+            datasets: [{
+                label: 'Umidade',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            },
+            {
+                label: 'Temperatura',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(199, 52, 52)',
+                tension: 0.1
+            }]
+        };
+
+        console.log('----------------------------------------------')
+        console.log('Estes dados foram recebidos pela funcao "obterDadosGrafico" e passados para "plotarGrafico":')
+        console.log(resposta)
+
+        // Inserindo valores recebidos em estrutura para plotar o gráfico
+        for (i = 0; i < resposta.length; i++) {
+            var registro = resposta[i];
+            labels.push(registro.momento_grafico);
+            dados.datasets[0].data.push(registro.umidade);
+            dados.datasets[1].data.push(registro.temperatura);
+        }
+
+        console.log('----------------------------------------------')
+        console.log('O gráfico será plotado com os respectivos valores:')
+        console.log('Labels:')
+        console.log(labels)
+        console.log('Dados:')
+        console.log(dados.datasets)
+        console.log('----------------------------------------------')
+
+        // Criando estrutura para plotar gráfico - config
+        const config = {
+            type: 'line',
+            data: dados,
+        };
+
+        // Adicionando gráfico criado em div na tela
+        let myChart = new Chart(
+            document.getElementById(`myChartCanvas${idAquario}`),
+            config
+        );
+
+        setTimeout(() => atualizarGrafico(idAquario, dados, myChart), 2000);
+    }
+
+
+    // Esta função *atualizarGrafico* atualiza o gráfico que foi renderizado na página,
+    // buscando a última medida inserida em tabela contendo as capturas, 
+
+    //     Se quiser alterar a busca, ajuste as regras de negócio em src/controllers
+    //     Para ajustar o "select", ajuste o comando sql em src/models
+    function atualizarGrafico(idAquario, dados, myChart) {
+
+
+
+        fetch(`/medidas/tempo-real/${idAquario}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (novoRegistro) {
+
+                    obterdados(idAquario);
+                    // alertar(novoRegistro, idAquario);
+                    console.log(`Dados recebidos: ${JSON.stringify(novoRegistro)}`);
+                    console.log(`Dados atuais do gráfico:`);
+                    console.log(dados);
+
+                    let avisoCaptura = document.getElementById(`avisoCaptura${idAquario}`)
+                    avisoCaptura.innerHTML = ""
+
+
+                    if (novoRegistro[0].momento_grafico == dados.labels[dados.labels.length - 1]) {
+                        console.log("---------------------------------------------------------------")
+                        console.log("Como não há dados novos para captura, o gráfico não atualizará.")
+                        avisoCaptura.innerHTML = "<i class='fa-solid fa-triangle-exclamation'></i> Foi trazido o dado mais atual capturado pelo sensor. <br> Como não há dados novos a exibir, o gráfico não atualizará."
+                        console.log("Horário do novo dado capturado:")
+                        console.log(novoRegistro[0].momento_grafico)
+                        console.log("Horário do último dado capturado:")
+                        console.log(dados.labels[dados.labels.length - 1])
+                        console.log("---------------------------------------------------------------")
+                    } else {
+                        // tirando e colocando valores no gráfico
+                        dados.labels.shift(); // apagar o primeiro
+                        dados.labels.push(novoRegistro[0].momento_grafico); // incluir um novo momento
+
+                        dados.datasets[0].data.shift();  // apagar o primeiro de umidade
+                        dados.datasets[0].data.push(novoRegistro[0].umidade); // incluir uma nova medida de umidade
+
+                        dados.datasets[1].data.shift();  // apagar o primeiro de temperatura
+                         dados.datasets[1].data.push(novoRegistro[0].temperatura); // incluir uma nova medida de temperatura
+
+                        myChart.update();
+                    }
+
+                    // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                    proximaAtualizacao = setTimeout(() => atualizarGrafico(idAquario, dados, myChart), 2000);
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+                // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                proximaAtualizacao = setTimeout(() => atualizarGrafico(idAquario, dados, myChart), 2000);
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+
+    }
+
+    const ctx = document.getElementById("myChart");
+
+
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: [
+                "08:00", "09:00", "10:00", "11:00", "12:00", "13:00",
+                "14:00", "15:00", "16:00", "17:00", "18:00", "19:00",
+                "20:00", "21:00", "22:00", "23:00", "00:00", "01:00",
+                "02:00", "03:00", "04:00", "05:00", "06:00", "07:00",
+            ],
+            datasets: [
+                {
+                    label: "Temperatura (°C)",
+                    data: [18, 20, 21, 27, 25, 24, 28, 30, 29, 29, 27, 25, 20, 22, 20, 20, 19, 19, 18, 19, 20, 20, 21, 21],
+                    borderWidth: 1,
+                    borderColor: "rgb(229, 240, 255)",
+                    backgroundColor: "rgb(229, 240, 255)",
+                },
+                {
+                    label: "Umidade (%)",
+                    data: [
+                        42, 45, 47, 51, 57, 60, 55, 54, 52, 51, 54, 59, 61, 65, 60, 57, 54,
+                        52, 50, 47, 46, 44, 43, 44,
+                    ],
+                    borderWidth: 1,
+                    borderColor: "rgb(153, 204, 255)",
+                    backgroundColor: "rgb(153, 204, 255)",
+                }
+            ],
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: "Variação de Temperatura por hora",
+                    color: "#fff",
+                    font: {
+                        size: 30,
+                    },
+                    ticks: {
+                        color: "#fff",
+                    },
+                },
+                legend: {
+                    labels: {
+                        padding: 40,
+                        color: "#fff",
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Tempo (H)'
+                    },
+                    ticks: {
+                        color: "#fff",
+                    },
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Temperatura (°C)'
+                    },
+                    ticks: {
+                        stepSize: 1,
+                        color: "#fff",
+                    },
+                },
+            },
+        },
+    }); -->

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document</title>
+  <script src="./js/login.js"></script>
+  <link rel="stylesheet" href="./css/style-login.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script data-jsd-embedded data-key="58caf5ec-06eb-4795-b41f-4f28b9a17f44"
+  data-base-url="https://jsd-widget.atlassian.com"
+  src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
+</head>
+
+<body id="estrutura_login">
+  <header>
+    <a href="index.html"><img src="./img/logo-png.png" class="logo" /></a>
+  </header>
+  <div class="container-login">
+    <div class="card login">
+      <h1>Entrar</h1>
+      <div class="formulario">
+        <div class="campo">
+
+          <span>Usuário:</span>
+          <div class="input-container"><i class="fas fa-user"></i>
+
+            <input type="text" id="ipt_login"/>
+          </div>
+        </div>
+
+        <div class="campo">
+          <span>Senha:</span>
+          <div class="input-container"><i class="fas fa-lock"></i>
+            <input type="password" class="senha" id="ipt_senha_login"/>
+          </div>
+        </div>
+      </div>
+      <a class="button" onclick="logar()">Entrar</a>
+      <span>Não tem cadastro? <a class="link-cadastro" href="cadastro.html">Cadastrar</a></span>
+    </div>
+  </div>
+
+  <footer>
+    <span> &copy; 2024 DataTech Security </span>
+  </footer>
+</body>
+
+</html>

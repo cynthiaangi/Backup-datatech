@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DataTech - Cadastro</title>
+    <script src="./js/cadastro.js"></script>
+    <link rel="stylesheet" href="./css/style-login.css" />
+    <script data-jsd-embedded data-key="58caf5ec-06eb-4795-b41f-4f28b9a17f44"
+    data-base-url="https://jsd-widget.atlassian.com"
+    src="https://jsd-widget.atlassian.com/assets/embed.js"></script>
+  </head>
+
+  <body id="estrutura">
+    <header>
+      <a href="index.html"><img src="./img/logo-png.png" class="logo" /></a>
+    </header>
+    <div class="container-cadastro">
+      <div class="card cadastro">
+        <h1>Cadastro</h1>
+  
+        <div id="primeiro" class="formulario-cadastro">
+          <div class="form-column">
+            <div class="campo">
+              <span>CEP:</span>
+              <input type="text" class="ipt_cadastro" id="ipt_cep" placeholder="00000-000" />
+            </div>
+            <div class="campo">
+              <span>Número:</span>
+              <input type="number" class="ipt_cadastro" id="ipt_num" placeholder="Digite o número" />
+            </div>
+            <div class="campo">
+              <span>Cidade:</span>
+              <input type="text" class="ipt_cadastro" id="ipt_cidade" placeholder="Digite a cidade" />
+            </div>
+            <div class="campo">
+              <span>Estado:</span>
+              <select class="ipt_cadastro" id="ipt_estado" >
+                <option value="#">Selecione seu estado</option>
+                <option>AC</option>
+                <option>AL</option>
+                <option>AP</option>
+                <option>AM</option>
+                <option>BA</option>
+                <option>CE</option>
+                <option>ES</option>
+                <option>GO</option>
+                <option>MA</option>
+                <option>MT</option>
+                <option>MS</option>
+                <option>MG</option>
+                <option>PA</option>
+                <option>PB</option>
+                <option>PR</option>
+                <option>PE</option>
+                <option>PI</option>
+                <option>RJ</option>
+                <option>RN</option>
+                <option>RS</option>
+                <option>RO</option>
+                <option>RR</option>
+                <option>SC</option>
+                <option>SP</option>
+                <option>SE</option>
+                <option>TO</option>
+                <option>DF</option>
+            </select>
+            </div>
+            
+            <button id="btn_seguinte" onclick="avancar()" class="button">Seguinte</button>
+          </div>
+        </div>
+  
+        <div id="continuacao" class="formulario-cadastro" style="display: none;">
+          <div class="campo">
+            <span>Razão social</span>
+            <input class="ipt_cadastro" type="text" id="ipt_empresa" placeholder="Razão social da empresa" />
+          </div>
+          <div class="campo">
+            <span>Nome fantasia</span>
+            <input class="ipt_cadastro" type="text" id="ipt_nome" placeholder="Nome comercial da empresa" />
+          </div>
+          <div class="campo">
+            <span>Representante legal</span>
+            <input class="ipt_cadastro" type="text" id="ipt_repre" placeholder="Nome do responsável" />
+          </div>
+          
+          <div class="campo">
+            <span>CNPJ</span>
+            <input class="ipt_cadastro" type="text" id="ipt_cnpj" placeholder="00.000.000/0000-00" />
+          </div>
+          <div class="campo">
+            <span>Unidade</span>
+            <input class="ipt_cadastro" type="text" id="ipt_unidade" placeholder="Nome da unidade do Datacenter" />
+          </div>
+          <div class="campo">
+            <span>Tamanho Datacenter</span>
+            <input class="ipt_cadastro" type="number" id="ipt_tam" placeholder="Tamanho (m²)" />
+          </div>
+          <div class="campo">
+            <span>E-mail</span>
+            <input class="ipt_cadastro" type="email" id="ipt_email" placeholder="contato@empresa.com" />
+          </div>
+          <div class="campo">
+            <span>Usuário</span>
+            <input class="ipt_cadastro" type="text" id="ipt_usuario" placeholder="Nome de usuário" />
+          </div>
+          <div class="campo">
+            <span>Senha</span>
+            <input class="ipt_cadastro" type="password" id="ipt_senha" placeholder="Crie uma senha segura" />
+          </div>
+          <div class="campo">
+            <span>Confirme sua senha</span>
+            <input class="ipt_cadastro" type="password" id="ipt_confirmacao" placeholder="Digite a senha novamente" />
+          </div>
+          
+          <button id="btn_cadastrar" class="button" onclick="cadastrar()">Cadastrar</button>
+          <button class="button" href="login.html" onclick="voltar()">Voltar</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="rodape">
+      <span> &copy; 2024 DataTech Security </span>
+    </footer>
+  </body>
+</html>
+
